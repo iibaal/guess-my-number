@@ -1,66 +1,85 @@
 'use strict'
 
-let secretNumber = Math.floor(Math.random() * 20) + 1;
-let score = 20
-let highScore = 0;
-let play = true;
+class GuessGame {
+    constructor(minNumber, maxNumber, guessRemaining){
+        this.minNumber=minNumber
+        this.maxNumber=maxNumber
+        this.guessRemaining=guessRemaining
+        
+    }
+    highscore = 0
+    isPlaying = true
+    guessedNumber = null
+    replaceHighscore(current){
+        if (current>this.highscore){
+            this.highscore=current
+            document.querySelector('span.highscore').textContent=current
+        }
+    }
+    replaceScoreText(text){
+        document.querySelector('.score').textContent=text
+    }
+    replaceSecretNumberText(text){
+        document.querySelector('div.number').textContent=text
+    }
+    replaceMessageText(text){
+        document.querySelector('.message').textContent=text
+    }
+    replaceGuessedNumber(value){
+        this.guessedNumber=value
+    }
+    startGame(){
+        game.isPlaying = true
+        this.replaceMessageText("Start Guessing")
+        this.secretNumber = Math.floor(Math.random() * this.maxNumber) + 1;
+        this.score = this.guessRemaining
+        this.replaceScoreText(this.score)
+        this.replaceSecretNumberText("?")
+    }
+}
 
-const scorePointer = document.querySelector('.score')
-const secretNumberPointer = document.querySelector('div.number')
-const highScorePointer = document.querySelector('span.highscore')
-const guessedNumberPointer = document.querySelector('.guess')
-const messagePointer = document.querySelector('.message')
+const game = new GuessGame(1,5,10)
+
+game.startGame()
 
 document.querySelector('.check').addEventListener('click',() => {
-    if(play!=true){
+    game.guessedNumber=document.querySelector('.guess').value
+    if(game.isPlaying!=true){
         return null
     }
-    if(guessedNumberPointer.value.length<=0){
-        messagePointer.textContent="Please guess the number first!"
+    if(game.guessedNumber.length<=0){
+        game.replaceMessageText("Please guess the number first!")
     }
-    else if(guessedNumberPointer.value <1 || guessedNumberPointer.value >20){
-        messagePointer.textContent="Can only guess between 1 and 20"
+    else if(game.guessedNumber < game.minNumber || game.guessedNumber > game.maxNumber){
+        game.replaceMessageText(`Can only guess between ${game.minNumber} and ${game.maxNumber}`)
     }
     else{
-        if (secretNumber == guessedNumberPointer.value){
-            play=false;
-            secretNumberPointer.textContent=secretNumber
-
-            replaceHighscore(score,highScore)
-            messagePointer.textContent="Congratulations, you have guessed the number!"
+        if (game.secretNumber == game.guessedNumber){
+            game.isPlaying=false;
+            game.replaceSecretNumberText(game.secretNumber)
+            game.replaceHighscore(game.score)
+            game.replaceMessageText("Congratulations, you have guessed the number!")
             document.querySelector('body').style.backgroundColor = '#60b347';
         }
-        else if(score<=1){
-            play = false
-            messagePointer.textContent="You lost the game :("
+        else if(game.score<=1){
+            game.isPlaying = false
+            game.replaceHighscore("You lost the game :(")
         }
         else{
-            if(secretNumber>guessedNumberPointer.value){
-                messagePointer.textContent="Guess higher!"
+            if(game.secretNumber>game.guessedNumber){
+                game.replaceMessageText("Guess higher!")
             }
             else {
-                messagePointer.textContent="Guess lower!"
+                game.replaceMessageText("Guess lower!")
             }
-            score-=1
-            scorePointer.textContent=score
+            game.score-=1
+            game.replaceScoreText(game.score)
         }
     }
 })
 
 document.querySelector('.again').addEventListener('click',() => {
-    play = true
-    score=20
-    scorePointer.textContent = score
-    secretNumberPointer.textContent="?"
-    messagePointer.textContent = "Start guessing..."
-    guessedNumberPointer.value = null
+    game.startGame()
+    game.replaceGuessedNumber(null)
     document.querySelector('body').style.backgroundColor = '#222';
-    secretNumber = Math.floor(Math.random() * 20) + 1;
 })
-
-function replaceHighscore(current, highscore){
-    if (current>highscore){
-        highScore=current //change the actual var first
-        highScorePointer.textContent=highScore
-    }
-}
